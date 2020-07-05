@@ -1,0 +1,18 @@
+{application, fresh,
+ [{description, "Keep access tokens and session cookies fresh"},
+  {vsn, git},
+  {registered, []},
+  {mod, { fresh_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    inets,
+    jiffy,
+    ssl
+   ]},
+  {env,[]},
+  {modules, []},
+  {maintainers, []},
+  {licenses, []},
+  {links, []}
+ ]}.
