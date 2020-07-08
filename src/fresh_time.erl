@@ -2,7 +2,8 @@
 
 -export([
     now/1,
-    wait_value/2
+    wait_value/2,
+    wait_value/3
 ]).
 
 -define(MILLION, 1000000).
@@ -34,6 +35,17 @@ now(us) ->
         Value :: term().
 
 wait_value(Name, Key) ->
+    wait_value(Name, Key, ?DEFAULT_TIMEOUT_MS).
+
+
+-spec wait_value(Name, Key, TimeoutMs) ->
+    {ok, Value} | timeout when
+        Name :: atom(),
+        Key :: atom(),
+        TimeoutMs :: millisecond(),
+        Value :: term().
+
+wait_value(Name, Key, TimeoutMs) ->
     wait(fun() ->
         case freshener:value(Name, Key) of
             {ok, Value} ->
@@ -41,13 +53,13 @@ wait_value(Name, Key) ->
             _ ->
                 wait
         end
-    end).
+    end, TimeoutMs).
 
 
 % Lifted from couch/src/test_util.erl
 
-wait(Fun) ->
-    wait(Fun, ?DEFAULT_TIMEOUT_MS).
+%% wait(Fun) ->
+%%     wait(Fun, ?DEFAULT_TIMEOUT_MS).
 
 
 wait(Fun, TimeoutMs) ->
