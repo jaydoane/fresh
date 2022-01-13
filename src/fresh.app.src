@@ -2,7 +2,6 @@
  [{description, "Keep access tokens and session cookies fresh"},
   {vsn, git},
   {registered, []},
-  {mod, { fresh_app, []}},
   {applications,
    [kernel,
     stdlib,
