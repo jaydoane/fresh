@@ -78,16 +78,31 @@ refresh(#{} = Config) ->
     } = Config,
     case request_token(TokenUrl, ApiKey, TokenCreds) of
         {ok, Token, ExpiresAfter} ->
-            ContentType = "application/x-www-form-urlencoded",
-            Body = <<"access_token=", Token/binary>>,
-            case fresh_session:refresh_cookie(SessionUrl, ContentType, Body) of
-                {ok, SessionValues, _SessionExpiresAfter} ->
-                    BearerToken = <<"Bearer ", Token/binary>>,
-                    Values = SessionValues#{token => BearerToken},
+            case maps:get(session_url, Config, undefined) of
+                undefined ->
+                    Values = #{
+                        token => bearer(Token),
+                        session => undefined
+                    },
                     {ok, Values, ExpiresAfter};
-                {error, Error} ->
-                    {error, Error}
+                SessionUrl ->
+                    refresh_cookie(SessionUrl, Token, ExpiresAfter)
             end;
+        {error, Error} ->
+            {error, Error}
+    end.
+
+
+bearer(Token) -> <<"Bearer ", Token/binary>>.
+
+
+refresh_cookie(SessionUrl, Token, ExpiresAfter) ->
+    ContentType = "application/x-www-form-urlencoded",
+    Body = <<"access_token=", Token/binary>>,
+    case fresh_session:refresh_cookie(SessionUrl, ContentType, Body) of
+        {ok, SessionValues, _SessionExpiresAfter} ->
+            Values = SessionValues#{token => bearer(Token)},
+            {ok, Values, ExpiresAfter};
         {error, Error} ->
             {error, Error}
     end.
